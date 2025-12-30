@@ -3,11 +3,20 @@
 :root {
   --background: #eb4604;
   --foreground: #171717;
+  --theme-orange: #eb4604;
+  --theme-black: #100c0b;
+  --theme-white: #f9f9f9;
+  --theme-gray: #646464;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-theme-orange: var(--theme-orange);
+  --color-theme-black: var(--theme-black);
+  --color-theme-white: var(--theme-white);
+  --color-theme-gray: var(--theme-gray);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-impact: var(--font-impact);

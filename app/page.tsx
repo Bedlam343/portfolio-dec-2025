@@ -1,50 +1,68 @@
 'use client';
 
+import Image from 'next/image';
 import { useRef } from 'react';
 
 export default function Home() {
-  const timeout = useRef<NodeJS.Timeout | null>(null);
   const backgroundRef = useRef<HTMLDivElement>(null);
   const nameRef = useRef<HTMLParagraphElement>(null);
 
-  const handleMouseDown = () => {
-    timeout.current = setTimeout(() => {
-      if (backgroundRef.current) {
-        backgroundRef.current.style.backgroundColor = '#1C1B17';
-      }
-      if (nameRef.current) {
-        nameRef.current.style.color = '#eb4604';
-      }
-    }, 100);
-  };
-
-  const handleMouseUp = () => {
-    if (timeout.current) {
-      clearTimeout(timeout.current);
-    }
-    if (backgroundRef.current) {
-      backgroundRef.current.style.backgroundColor = '#eb4604';
-    }
-    if (nameRef.current) {
-      nameRef.current.style.color = '#1C1B17';
-    }
-  };
-
   return (
-    <div
-      ref={backgroundRef}
-      onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
-      className={`h-screen w-screen flex flex-col justify-center 
-      items-center gap-0 bg-[#eb4604]`}
-    >
-      <p
-        ref={nameRef}
-        className={`text-[#1C1B17] select-none text-[75px] 
-        font-impact tracking-[-2px] uppercase leading-none`}
+    <div ref={backgroundRef} className="h-screen w-screen flex">
+      <div
+        className="w-[75%] bg-theme-black pt-[75px] flex 
+        flex-col items-center"
       >
-        Jagjit
-      </p>
+        <p
+          ref={nameRef}
+          className="text-theme-white select-none text-[125px] 
+          font-impact tracking-[-4px] uppercase leading-none text-center"
+        >
+          Jagjit
+        </p>
+        <p
+          className="font-inter text-center font-extralight text-theme-gray 
+          text-[60px] tracking-[-8px] select-none mt-[10px]"
+        >
+          Developer
+        </p>
+
+        <div
+          className="flex justify-center w-[300px] h-[300px] rounded-full
+          overflow-hidden mt-[30px]"
+        >
+          <Image
+            src="/images/profile.jpg"
+            alt="Profile Image"
+            width={300}
+            height={300}
+            className="object-cover"
+          />
+        </div>
+      </div>
+
+      <div className="w-[25%] bg-theme-orange flex justify-center items-center">
+        <ul className="text-theme-black text-[25px]">
+          <li
+            className="font-impact cursor-pointer hover:bg-theme-black
+              hover:text-theme-white"
+          >
+            <a>About</a>
+          </li>
+          <li
+            className="font-impact cursor-pointer hover:bg-theme-black
+              hover:text-theme-white"
+          >
+            <a>Experience</a>
+          </li>
+          <li
+            className="font-impact cursor-pointer hover:bg-theme-black
+              hover:text-theme-white"
+          >
+            <a>Projects</a>
+          </li>
+        </ul>
+      </div>
     </div>
   );
 }
