@@ -3,10 +3,10 @@
 import { useRef } from 'react';
 import Image from 'next/image';
 import { motion, Variants } from 'motion/react';
-import Marquee from 'react-fast-marquee';
 
 import OrbitRing from '@/components/OrbitRing';
-import { TECH_ICONS, QUALITIES } from '@/utils/constants';
+import ScrollHint from '@/components/ScrollHint';
+import { TECH_ICONS } from '@/utils/constants';
 
 export default function PortfolioHome() {
   const backgroundRef = useRef(null);
@@ -60,7 +60,7 @@ export default function PortfolioHome() {
           radius={300}
           duration={45}
           side="left"
-          icons={TECH_ICONS.slice(0, 4)}
+          icons={TECH_ICONS.slice(2, 5)}
         />
         {/* Middle Ring - Left */}
         <OrbitRing
@@ -68,14 +68,14 @@ export default function PortfolioHome() {
           duration={60}
           reverse={true}
           side="left"
-          icons={TECH_ICONS.slice(4, 8)}
+          icons={TECH_ICONS.slice(5, 9)}
         />
         {/* Outer Ring - Left */}
         <OrbitRing
           radius={600}
           duration={80}
           side="left"
-          icons={TECH_ICONS.slice(8, 10)}
+          icons={TECH_ICONS.slice(9, 15)}
         />
       </div>
 
@@ -87,21 +87,27 @@ export default function PortfolioHome() {
           duration={45}
           reverse={true}
           side="right"
-          icons={TECH_ICONS.slice(7, 11)}
+          icons={TECH_ICONS.slice(10, 13)}
         />
         {/* Middle Ring - Right */}
         <OrbitRing
           radius={450}
           duration={60}
           side="right"
-          icons={TECH_ICONS.slice(2, 5)}
+          icons={TECH_ICONS.slice(6, 10)}
         />
         {/* Outer Ring - Right */}
-        <OrbitRing radius={600} duration={80} reverse={true} side="right" />
+        <OrbitRing
+          radius={600}
+          duration={80}
+          reverse={true}
+          side="right"
+          icons={TECH_ICONS.slice(0, 6)}
+        />
       </div>
 
       {/* --- 2. Marquee Top Bar --- */}
-      <div className="relative w-full bg-theme-black/50 backdrop-blur-sm py-2 z-30 border-b border-theme-white/10">
+      {/* <div className="relative w-full bg-theme-black/50 backdrop-blur-sm py-2 z-30 border-b border-theme-white/10">
         <Marquee
           speed={20}
           gradient={false}
@@ -122,11 +128,11 @@ export default function PortfolioHome() {
             </p>
           ))}
         </Marquee>
-      </div>
+      </div> */}
 
       {/* --- 3. Main Content --- */}
       <motion.section
-        className="relative pt-[80px] z-10 w-full h-full flex flex-col items-center"
+        className="relative pt-[100px] z-10 w-full h-full flex flex-col items-center"
         variants={containerVariants}
         initial="hidden"
         animate="show"
@@ -172,6 +178,8 @@ export default function PortfolioHome() {
           </ul>
         </motion.div>
       </motion.section>
+
+      <ScrollHint />
     </div>
   );
 }

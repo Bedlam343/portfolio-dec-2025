@@ -84,6 +84,36 @@ export const TECH_ICONS = [
     src: '/icons/google-cloud-platform.svg',
     alt: 'Google Cloud Platform',
   },
+  {
+    id: 12,
+    color: 'bg-[#FED743]',
+    label: 'PY',
+    src: '/icons/python.svg',
+    alt: 'Python',
+  },
+  {
+    id: 13,
+    color: 'bg-[#A259FF]',
+    label: 'FG',
+    src: '/icons/figma.svg',
+    alt: 'Figma',
+    height: 18,
+    width: 18,
+  },
+  {
+    id: 14,
+    color: 'bg-[#33628A]',
+    label: 'PS',
+    src: '/icons/postgresql.png',
+    alt: 'PostgreSQL',
+  },
+  {
+    id: 15,
+    color: 'bg-[#5C87A1]',
+    label: 'MS',
+    src: '/icons/mysql.svg',
+    alt: 'MySQL',
+  },
 ];
 
 export const QUALITIES = [
