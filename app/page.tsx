@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useRef } from 'react';
+import { useRef } from 'react';
 import Image from 'next/image';
-import { motion, useScroll } from 'framer-motion';
+import { motion, Variants } from 'motion/react';
 import Marquee from 'react-fast-marquee';
 
 const QUALITIES = [
@@ -11,7 +11,6 @@ const QUALITIES = [
   { word: 'Dependable' },
   { word: 'Diligent' },
   { word: 'Dreamer' },
-  { word: 'Dope' },
   { word: 'Determined' },
   { word: 'Designer', color: 'text-theme-green' },
   { word: 'Devoted' },
@@ -19,7 +18,6 @@ const QUALITIES = [
   { word: 'Detail-Oriented' },
   { word: 'Driven' },
   { word: 'Daring' },
-  { word: 'Distinctive' },
   { word: 'Deliberate' },
   { word: 'Dexterous' },
   { word: 'Dedicated' },
@@ -28,16 +26,8 @@ const QUALITIES = [
 export default function PortfolioHome() {
   const backgroundRef = useRef(null);
 
-  // Optional: Parallax effect based on scroll (kept from previous code, but less impactful with fixed elements)
-  const { scrollYProgress } = useScroll({
-    target: backgroundRef,
-    offset: ['start start', 'end start'],
-  });
-  // Placeholder for parallax if needed in the future, not used in this specific layout.
-  // const nameY = useTransform(scrollYProgress, [0, 1], [0, -100]);
-
   // Animation variants for staggered entrance of main elements
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -49,13 +39,13 @@ export default function PortfolioHome() {
   };
 
   // Variant for elements fading in and moving up
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { y: 30, opacity: 0 },
     show: { y: 0, opacity: 1, transition: { type: 'spring', stiffness: 100 } },
   };
 
   // Variant for elements that should just fade in (like the title)
-  const fadeInVariants = {
+  const fadeInVariants: Variants = {
     hidden: { opacity: 0 },
     show: { opacity: 1, transition: { duration: 0.8 } },
   };
@@ -135,19 +125,20 @@ export default function PortfolioHome() {
       </div>
 
       <motion.section
-        className="pt-[90px] z-10 w-full h-full"
+        className="pt-[80px] z-10 w-full h-full"
         variants={containerVariants}
         initial="hidden"
         animate="show"
       >
         <motion.p
           variants={fadeInVariants}
-          className="text-center text-theme-white select-none text-[80px] sm:text-[125px] font-impact tracking-[-4px] uppercase leading-none drop-shadow-2xl"
+          className="text-center text-theme-white select-none text-[80px] sm:text-[125px] font-impact 
+          tracking-[-4px] uppercase leading-none drop-shadow-2xl"
         >
           Jagjit
         </motion.p>
 
-        <div className="w-full flex justify-center mt-[40px]">
+        <div className="w-full flex justify-center mt-[30px]">
           <motion.div
             variants={itemVariants}
             className="w-[200px] h-[200px] sm:w-[300px] sm:h-[300px] 
@@ -162,29 +153,29 @@ export default function PortfolioHome() {
             />
           </motion.div>
         </div>
-      </motion.section>
 
-      <div
-        className="absolute z-20 bg-theme-orange flex justify-center 
-      items-center right-10 bottom-10 px-6 py-4 sm:px-8 sm:py-6 
-      shadow-[8px_8px_0px_rgba(0,0,0,0.5)] 
-      hover:shadow-[12px_12px_0px_rgba(0,0,0,0.5)] 
-      hover:-translate-x-1 hover:-translate-y-1 transition-all 
-      duration-300"
-      >
-        <ul className="text-theme-black text-[20px] sm:text-[25px] space-y-2">
-          {['About', 'Projects', 'Experience'].map((item) => (
-            <li key={item} className="font-impact group text-left">
-              <a className="cursor-pointer block relative overflow-hidden">
-                <span className="relative z-10 group-hover:text-theme-white transition-colors duration-300">
+        <motion.div
+          variants={itemVariants}
+          className="flex justify-center mt-[75px]"
+        >
+          <ul className="flex space-x-12">
+            {['About', 'Experience', 'Projects', 'More'].map((item) => (
+              <li key={item} className="font-inter text-xl relative group p-0">
+                <div
+                  className="absolute top-0 left-0 h-full 
+                  bg-theme-orange w-0 group-hover:w-full transition-all duration-300"
+                />
+                <a
+                  className="cursor-pointer block relative overflow-hidden pr-1
+                  group-hover:text-theme-black transition-colors duration-300"
+                >
                   {item}
-                </span>
-                <span className="absolute bottom-0 left-0 w-0 h-full bg-theme-black -z-0 transition-all duration-300 group-hover:w-full"></span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </motion.div>
+      </motion.section>
     </div>
   );
 }
