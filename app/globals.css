@@ -7,6 +7,7 @@
   --theme-black: #100c0b;
   --theme-white: #f9f9f9;
   --theme-gray: #646464;
+  --theme-green: #99a57d;
 }
 
 @theme inline {
@@ -16,11 +17,24 @@
   --color-theme-black: var(--theme-black);
   --color-theme-white: var(--theme-white);
   --color-theme-gray: var(--theme-gray);
+  --color-theme-green: var(--theme-green);
 
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-impact: var(--font-impact);
   --font-inter: var(--font-inter);
+}
+
+@theme {
+  --animate-scroll: scroll 25s linear infinite;
+  @keyframes scroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
 }
 
 @media (prefers-color-scheme: dark) {
