@@ -25,18 +25,12 @@ const OrbitRing = ({
 }) => {
   const rotation = useMotionValue(0);
 
-  // --- CHANGE 1: Initialize with high velocity for the "Fast Start" effect ---
-  // A value of 40-50 provides a nice strong spin on load.
   const velocityRef = useRef(50);
 
   const counterRotation = useTransform(rotation, (value) => -value);
 
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
-      // --- CHANGE 2: Simplified Scroll Logic ---
-      // We take the absolute value of the scroll.
-      // This means scrolling UP or DOWN both add energy to the spin.
-      // This ensures the ring always speeds up in its natural direction.
       const scrollForce = Math.abs(e.deltaY) * 0.05;
 
       velocityRef.current += scrollForce;

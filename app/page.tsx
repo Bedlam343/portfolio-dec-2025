@@ -6,6 +6,7 @@ import { motion, Variants } from 'motion/react';
 
 import OrbitRing from '@/components/OrbitRing';
 import ScrollHint from '@/components/ScrollHint';
+import GlitchText from '@/components/GlitchText';
 import { TECH_ICONS } from '@/utils/constants';
 
 export default function PortfolioHome() {
@@ -132,19 +133,28 @@ export default function PortfolioHome() {
 
       {/* --- 3. Main Content --- */}
       <motion.section
-        className="relative pt-[100px] z-10 w-full h-full flex flex-col items-center"
+        className="relative pt-[90px] z-10 w-full h-full flex flex-col items-center"
         variants={containerVariants}
         initial="hidden"
         animate="show"
       >
-        <motion.p
-          variants={fadeInVariants}
-          className="text-center text-theme-white select-none text-[80px] sm:text-[125px] font-impact tracking-[-4px] uppercase leading-none drop-shadow-2xl"
-        >
-          Jagjit
-        </motion.p>
+        <motion.div variants={fadeInVariants}>
+          <GlitchText
+            text="JAGJIT"
+            className="text-center select-none text-[80px] sm:text-[125px] font-impact tracking-[-4px] uppercase leading-none drop-shadow-2xl"
+          />
+        </motion.div>
 
-        <div className="w-full flex justify-center mt-[30px]">
+        <motion.div variants={fadeInVariants}>
+          <p
+            className="text-center text-theme-gray font-inter text-thin text-[45px]
+            font-extralight select-none tracking-wide"
+          >
+            Software Engineer
+          </p>
+        </motion.div>
+
+        <div className="w-full flex justify-center mt-[25px]">
           <motion.div
             variants={itemVariants}
             className="w-[200px] h-[200px] sm:w-[300px] sm:h-[300px] rounded-full overflow-hidden border-4 border-theme-black shadow-2xl z-20"
