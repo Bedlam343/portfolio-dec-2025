@@ -68,9 +68,11 @@ const OrbitRing = ({
 
   return (
     <div
-      className={`absolute top-1/2 -translate-y-1/2 rounded-full border border-theme-white/10 flex items-center justify-center pointer-events-none z-[5]
+      className={`absolute top-1/2 -translate-y-1/2 rounded-full 
+        border border-theme-white/10 flex items-center justify-center 
+        pointer-events-none z-[5]
       ${side === 'left' ? '-left-[50%]' : '-right-[50%]'} 
-      hidden xl:flex`}
+      flex`}
       style={{
         width: radius * 2,
         height: radius * 2,
