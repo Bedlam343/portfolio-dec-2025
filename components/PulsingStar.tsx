@@ -71,7 +71,7 @@ const PulsingStar = ({
       <motion.div
         className={`absolute w-[600px] h-[600px] rounded-full blur-[120px] mix-blend-screen ${colorClass}`}
         // CHANGE 2: Increased baseline from 0.03 to 0.06 (Resting is slightly brighter)
-        style={{ opacity: useTransform(opacityBoost, (v) => 0.06 + v) }}
+        style={{ opacity: useTransform(opacityBoost, (v) => 0.09 + v) }}
         animate={{
           scale: [1, 1.1],
         }}
@@ -87,7 +87,7 @@ const PulsingStar = ({
       <motion.div
         className={`absolute w-[300px] h-[300px] rounded-full blur-[60px] mix-blend-screen ${colorClass}`}
         // CHANGE 2: Increased baseline from 0.1 to 0.15
-        style={{ opacity: useTransform(opacityBoost, (v) => 0.15 + v) }}
+        style={{ opacity: useTransform(opacityBoost, (v) => 0.2 + v) }}
         animate={{
           scale: [1, 1.15],
           scaleX: [1, 1.05],
@@ -105,7 +105,7 @@ const PulsingStar = ({
       <motion.div
         className="absolute w-[80px] h-[80px] bg-white rounded-full blur-[20px] mix-blend-overlay"
         // CHANGE 2: Increased baseline from 0.3 to 0.4
-        style={{ opacity: useTransform(opacityBoost, (v) => 0.4 + v) }}
+        style={{ opacity: useTransform(opacityBoost, (v) => 0.5 + v) }}
       />
     </motion.div>
   );
