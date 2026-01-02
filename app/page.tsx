@@ -12,23 +12,13 @@ import { TECH_ICONS } from '@/utils/constants';
 
 import { useScrollPhysics } from '@/hooks/useScrollPhysics';
 
-// Need to turn SVG filter elements into motion components to animate their attributes
 const MotionFeDisplacementMap = motion.create('feDisplacementMap');
 const MotionFeTurbulence = motion.create('feTurbulence');
 
 export default function PortfolioHome() {
   const backgroundRef = useRef(null);
-
-  // 2. Use the physics hook
   const physicsVelocity = useScrollPhysics();
-
-  // 3. Map velocity to distortion amounts
-  // Map velocity (0 to 150) to displacement scale (0 to 50px)
-  // 50px is a strong glitch. Reduce to 20-30 for subtlety.
   const distortionScale = useTransform(physicsVelocity, [0, 150], [0, 50]);
-
-  // Optional: We can also subtly animate the noise seed to make the glitch "crawl"
-  // Even when velocity is low.
   const noiseSeed = useTransform(physicsVelocity, (v) => v * 5);
 
   const containerVariants: Variants = {
@@ -54,9 +44,7 @@ export default function PortfolioHome() {
       ref={backgroundRef}
       className="relative h-screen w-screen bg-theme-black overflow-hidden selection:bg-theme-orange selection:text-black"
     >
-      {/* --- NEW: Hidden SVG Filter Definition --- */}
-      {/* This defines the "instruction set" for how to distort the image.
-           It's invisible on its own. */}
+      {/* SVG Filters (Invisible) */}
       <svg
         style={{
           position: 'absolute',
@@ -67,21 +55,17 @@ export default function PortfolioHome() {
       >
         <defs>
           <filter id="profile-glitch-filter">
-            {/* Generates a fractal noise texture.
-                We animate the 'seed' so the noise pattern shifts slightly on scroll. */}
             <MotionFeTurbulence
               type="fractalNoise"
-              baseFrequency="0.02 0.04" // Stretch the noise horizontally for a "scanline" look
+              baseFrequency="0.02 0.04"
               numOctaves="2"
               result="noise"
               seed={noiseSeed}
             />
-            {/* Uses the noise texture to shift pixels of the SourceGraphic.
-                The 'scale' attribute determines how far pixels are shifted. */}
             <MotionFeDisplacementMap
               in="SourceGraphic"
               in2="noise"
-              scale={distortionScale} // This is linked to scroll velocity!
+              scale={distortionScale}
               xChannelSelector="R"
               yChannelSelector="G"
             />
@@ -109,6 +93,7 @@ export default function PortfolioHome() {
       <PulsingStar side="right" colorClass="bg-theme-orange" />
 
       {/* LEFT SIDE RINGS */}
+      {/* Ensure this z-index is lower than main content, but interaction is allowed because main content will be pointer-events-none */}
       <div className="absolute inset-0 z-[1] pointer-events-none">
         <OrbitRing
           radius={300}
@@ -157,7 +142,8 @@ export default function PortfolioHome() {
 
       {/* --- 3. Main Content --- */}
       <motion.section
-        className="relative pt-[90px] z-10 w-full h-full flex flex-col items-center"
+        // FIX 1: Added pointer-events-none so mouse clicks pass through the empty space to the rings
+        className="relative pt-[90px] z-10 w-full h-full flex flex-col items-center pointer-events-none"
         variants={containerVariants}
         initial="hidden"
         animate="show"
@@ -182,14 +168,10 @@ export default function PortfolioHome() {
         <div className="w-full flex justify-center mt-[25px]">
           <motion.div
             variants={itemVariants}
-            // 4. APPLY THE FILTER HERE
-            // We use style={{ filter: ... }} to reference the ID of the SVG filter we defined above.
-            // When velocity is 0, scale is 0, so the filter does nothing.
-            // When velocity increases, scale increases, distorting the image.
             style={{ filter: 'url(#profile-glitch-filter)' }}
-            className="w-[200px] h-[200px] sm:w-[300px] sm:h-[300px] rounded-full overflow-hidden border-4 border-theme-black shadow-2xl z-20 relative"
+            // FIX 2: Added pointer-events-auto if you want the image to be interactive
+            className="w-[200px] h-[200px] sm:w-[300px] sm:h-[300px] rounded-full overflow-hidden border-4 border-theme-black shadow-2xl z-20 relative pointer-events-auto"
           >
-            {/* Added a subtle color overlay that intensifies on scroll for extra effect */}
             <motion.div
               className="absolute inset-0 bg-theme-orange mix-blend-overlay z-10 pointer-events-none"
               style={{
@@ -201,7 +183,6 @@ export default function PortfolioHome() {
               alt="Profile Image"
               width={300}
               height={300}
-              // Removed hover scale as it conflicts visually with the glitch distortion
               className="object-cover w-full h-full"
             />
           </motion.div>
@@ -209,7 +190,8 @@ export default function PortfolioHome() {
 
         <motion.div
           variants={itemVariants}
-          className="flex justify-center mt-[60px] sm:mt-[75px]"
+          // FIX 3: Added pointer-events-auto here so the buttons work
+          className="flex justify-center mt-[60px] sm:mt-[75px] pointer-events-auto"
         >
           <ul className="flex flex-col sm:flex-row space-y-6 sm:space-x-12 sm:space-y-0">
             {['About', 'Experience', 'Projects', 'More'].map((item) => (
