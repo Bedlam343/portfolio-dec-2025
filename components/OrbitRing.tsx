@@ -10,7 +10,6 @@ import {
 import { useRef, useState } from 'react';
 import Image from 'next/image';
 import { TECH_ICONS } from '@/utils/constants';
-
 import { useGlobalScrollPhysics } from '@/context/ScrollPhysicsContext';
 
 const OrbitRing = ({
@@ -27,10 +26,7 @@ const OrbitRing = ({
   icons?: typeof TECH_ICONS;
 }) => {
   const rotation = useMotionValue(0);
-
-  // 2. Get the global scroll velocity (Shared by Stars, Text, and Rings)
   const globalVelocity = useGlobalScrollPhysics();
-
   const isHovering = useRef(false);
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
 
@@ -38,25 +34,15 @@ const OrbitRing = ({
 
   useAnimationFrame((time, delta) => {
     const deltaSeconds = delta / 1000;
-
-    // PAUSE LOGIC: If hovering, strictly stop updating rotation
     if (isHovering.current) return;
 
-    // 1. Calculate Base Speed (Constant background rotation)
-    // e.g. 360 degrees / 60 seconds = 6 degrees per second
     const baseSpeed = 360 / duration;
-
-    // 2. Calculate Boost from Global Velocity
-    // Global velocity is roughly 0 (idle) to ~200 (fast scroll).
-    // We multiply by 0.5 to convert "Physics Energy" into "Degrees Per Second".
-    // 200 energy * 0.5 = 100 degrees/sec extra rotation (Fast but readable).
     const currentVelocity = globalVelocity.get();
-    const speedBoost = currentVelocity * 2;
+    const speedBoost = currentVelocity * 1; // Tuned for smooth speed up
 
-    // 3. Apply Total Rotation
     const moveBy = (baseSpeed + speedBoost) * deltaSeconds;
-
     const currentRotation = rotation.get();
+
     if (reverse) {
       rotation.set(currentRotation - moveBy);
     } else {
@@ -65,7 +51,8 @@ const OrbitRing = ({
   });
 
   return (
-    <div
+    // CHANGE: Converted outer 'div' to 'motion.div'
+    <motion.div
       className={`absolute top-1/2 -translate-y-1/2 rounded-full 
         border border-theme-white/10 flex items-center justify-center 
         pointer-events-none z-[5]
@@ -111,7 +98,6 @@ const OrbitRing = ({
                   setActiveTooltip(null);
                 }}
               >
-                {/* TOOLTIP COMPONENT */}
                 <AnimatePresence>
                   {activeTooltip === icon.label && (
                     <motion.div
@@ -123,13 +109,10 @@ const OrbitRing = ({
                       bg-theme-black/90 border border-theme-orange/50 px-3 py-1 
                       rounded-md whitespace-nowrap z-20 pointer-events-none"
                     >
-                      <p className="text-[10px] font-inter tracking-wider text-theme-white">
-                        {icon.alt}
+                      <p className="text-[10px] font-inter tracking-wider text-theme-white uppercase">
+                        {icon.alt || icon.label}
                       </p>
-                      <div
-                        className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 
-                      bg-theme-orange/50 rotate-45 transform translate-y-[-50%]"
-                      />
+                      <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-theme-orange/50 rotate-45 transform translate-y-[-50%]" />
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -140,13 +123,13 @@ const OrbitRing = ({
                     alt={icon.alt || icon.label}
                     width={icon.width || 30}
                     height={icon.height || 30}
+                    className="object-contain p-1"
                   />
                 ) : (
                   <span className="text-[10px] font-bold text-white">
                     {icon.label}
                   </span>
                 )}
-
                 <div
                   className={`absolute inset-0 rounded-full opacity-20 ${icon.color}`}
                 />
@@ -155,7 +138,7 @@ const OrbitRing = ({
           );
         })}
       </motion.div>
-    </div>
+    </motion.div>
   );
 };
 

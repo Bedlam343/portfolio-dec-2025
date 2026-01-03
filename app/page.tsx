@@ -3,26 +3,21 @@
 import { useRef } from 'react';
 import Image from 'next/image';
 import { motion, Variants, useTransform } from 'motion/react';
+import Link from 'next/link';
 
 import OrbitRing from '@/components/OrbitRing';
 import ScrollHint from '@/components/ScrollHint';
 import GlitchText from '@/components/GlitchText';
 import { TECH_ICONS } from '@/utils/constants';
 
-// Make sure this path matches the file you created in Step 1
 import { useGlobalScrollPhysics } from '@/context/ScrollPhysicsContext';
 
-// Define Motion Components for SVG Filters
 const MotionFeDisplacementMap = motion.create('feDisplacementMap');
 const MotionFeTurbulence = motion.create('feTurbulence');
 
 export default function PortfolioHome() {
   const backgroundRef = useRef(null);
-
-  // 1. Connect to the global physics engine
   const physicsVelocity = useGlobalScrollPhysics();
-
-  // 2. Map velocity to distortion
   const distortionScale = useTransform(physicsVelocity, [0, 150], [0, 50]);
   const noiseSeed = useTransform(physicsVelocity, (v) => v * 5);
 
@@ -30,7 +25,11 @@ export default function PortfolioHome() {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
-      transition: { staggerChildren: 0.2, delayChildren: 0.3 },
+      transition: { staggerChildren: 0.2, delayChildren: 1.2 },
+    },
+    exit: {
+      opacity: 0,
+      transition: { duration: 0.5 }, // Text fades out quickly so rings can shine
     },
   };
 
@@ -44,11 +43,22 @@ export default function PortfolioHome() {
     show: { opacity: 1, transition: { duration: 0.8 } },
   };
 
-  const ringExitVariant: Variants = {
+  // --- UPDATED WARP ANIMATION ---
+  const ringVariants: Variants = {
+    hidden: { opacity: 0, scale: 3 },
+    show: {
+      opacity: 1,
+      scale: 1,
+      transition: { duration: 1.5, ease: 'circOut' },
+    },
     exit: {
-      scale: 15,
+      scale: 12, // Reduced from 15 to ensure browser renders it smoothly
       opacity: 0,
-      transition: { duration: 0.8, ease: 'easeIn' },
+      transition: {
+        duration: 0.8,
+        ease: [0.7, 0, 0.84, 0], // Custom "Eased In" bezier for that Sci-Fi Jump feel
+        opacity: { duration: 0.8, times: [0, 0.8, 1] }, // Keep opacity 1 until the very end
+      },
     },
   };
 
@@ -63,11 +73,8 @@ export default function PortfolioHome() {
   return (
     <div
       ref={backgroundRef}
-      // CRITICAL FIX: Removed 'bg-theme-black'.
-      // This allows the stars (which are behind this page in the Layout) to show through.
       className="relative h-screen w-screen overflow-hidden selection:bg-theme-orange selection:text-black"
     >
-      {/* SVG Filters (Invisible Definition) */}
       <svg
         style={{
           position: 'absolute',
@@ -99,10 +106,11 @@ export default function PortfolioHome() {
       {/* RINGS WRAPPER */}
       <motion.div
         className="absolute inset-0 z-[1] pointer-events-none"
-        variants={ringExitVariant}
+        variants={ringVariants}
+        initial="hidden"
+        animate="show"
         exit="exit"
       >
-        {/* Left Rings */}
         <OrbitRing
           radius={300}
           duration={45}
@@ -123,7 +131,6 @@ export default function PortfolioHome() {
           icons={TECH_ICONS.slice(9, 15)}
         />
 
-        {/* Right Rings */}
         <OrbitRing
           radius={300}
           duration={45}
@@ -175,10 +182,10 @@ export default function PortfolioHome() {
         <div className="w-full flex justify-center mt-[25px]">
           <motion.div
             variants={{
-              show: { scale: 1, opacity: 1 },
+              hidden: { scale: 0.8, opacity: 0 },
+              show: { scale: 1, opacity: 1, transition: { duration: 0.8 } },
               exit: { scale: 0, opacity: 0, transition: { duration: 0.4 } },
             }}
-            // Apply the filter using the ID defined in the SVG above
             style={{ filter: 'url(#profile-glitch-filter)' }}
             className="w-[200px] h-[200px] sm:w-[300px] sm:h-[300px] rounded-full overflow-hidden border-4 border-theme-black shadow-2xl z-20 relative pointer-events-auto"
           >
@@ -204,15 +211,23 @@ export default function PortfolioHome() {
           className="flex justify-center mt-[60px] sm:mt-[75px] pointer-events-auto"
         >
           <ul className="flex flex-col sm:flex-row space-y-6 sm:space-x-12 sm:space-y-0">
-            {['About', 'Experience', 'Projects', 'More'].map((item) => (
+            {[
+              { name: 'About', path: '/about' },
+              { name: 'Experience', path: '/experience' },
+              { name: 'Projects', path: '/projects' },
+              { name: 'More', path: '/more' },
+            ].map((item) => (
               <li
-                key={item}
+                key={item.name}
                 className="font-inter text-xl relative group p-0 text-theme-white"
               >
                 <div className="absolute top-0 left-0 h-full bg-theme-orange w-0 group-hover:w-full transition-all duration-300 -z-10" />
-                <a className="cursor-pointer block relative overflow-hidden px-1 group-hover:text-theme-black transition-colors duration-300 text-center sm:text-left">
-                  {item}
-                </a>
+                <Link
+                  href={item.path}
+                  className="cursor-pointer block relative overflow-hidden px-1 group-hover:text-theme-black transition-colors duration-300 text-center sm:text-left"
+                >
+                  {item.name}
+                </Link>
               </li>
             ))}
           </ul>

@@ -1,27 +1,27 @@
 'use client';
 
-import { motion, AnimatePresence } from 'motion/react';
-import { useEffect, useState } from 'react';
+import { motion, AnimatePresence, useMotionValueEvent } from 'motion/react';
+import { useState } from 'react';
+// 1. Import the global hook
+import { useGlobalScrollPhysics } from '@/context/ScrollPhysicsContext';
 
 export default function ScrollHint() {
   const [hasScrolled, setHasScrolled] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = (e: WheelEvent) => {
-      // If the user scrolls even a little bit (threshold > 10), hide the hint
-      if (Math.abs(e.deltaY) > 10) {
-        setHasScrolled(true);
-      }
-    };
+  // 2. Get the physics value
+  const physicsVelocity = useGlobalScrollPhysics();
 
-    // Listen for the wheel event since the page might not actually "scroll"
-    // (content fits viewport)
-    window.addEventListener('wheel', handleScroll, { passive: true });
+  // 3. Subscribe to changes
+  // Instead of setting up a new wheel listener, we just watch the MotionValue.
+  useMotionValueEvent(physicsVelocity, 'change', (latest) => {
+    // Optimization: Stop checking if we already hid it
+    if (hasScrolled) return;
 
-    return () => {
-      window.removeEventListener('wheel', handleScroll);
-    };
-  }, []);
+    // If velocity goes above 1 (meaning the user started scrolling), hide the hint.
+    if (latest > 1) {
+      setHasScrolled(true);
+    }
+  });
 
   return (
     <AnimatePresence>
