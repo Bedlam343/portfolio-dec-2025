@@ -25,7 +25,7 @@ const OrbitRing = ({
   icons?: typeof TECH_ICONS;
 }) => {
   const rotation = useMotionValue(0);
-  const velocityRef = useRef(50);
+  const velocityRef = useRef(5);
 
   // 1. Ref to track if we should pause rotation
   const isHovering = useRef(false);
@@ -37,7 +37,7 @@ const OrbitRing = ({
 
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
-      const scrollForce = Math.abs(e.deltaY) * 0.05;
+      const scrollForce = Math.abs(e.deltaY) * 0.005;
       velocityRef.current += scrollForce;
     };
 
