@@ -1,6 +1,7 @@
 'use client';
 
 import PulsingStar from '@/components/PulsingStar';
+import TwinklingStars from './TwinklingStars';
 
 export default function CosmicBackground() {
   return (
@@ -13,6 +14,8 @@ export default function CosmicBackground() {
           backgroundRepeat: 'repeat',
         }}
       />
+
+      <TwinklingStars />
 
       {/* 2. THE STARS (Persistent & Connected to Global Physics) */}
       <PulsingStar side="left" colorClass="bg-theme-orange" />
