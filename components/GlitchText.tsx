@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { useAnimationFrame } from 'motion/react';
+import { useGlobalScrollPhysics } from '@/context/ScrollPhysicsContext';
 
 const GLITCH_CHARS = '0123456789!@#$%^&*()_+-=[]{}|;:,.<>?/';
 
@@ -15,38 +16,20 @@ export default function GlitchText({ text, className = '' }: GlitchTextProps) {
     text.split('').map((char) => ({ char, isGlitching: false })),
   );
 
-  const velocityRef = useRef(0);
+  const globalVelocity = useGlobalScrollPhysics();
+
   const timeSinceLastGlitch = useRef(0);
 
-  useEffect(() => {
-    const handleWheel = (e: WheelEvent) => {
-      // TUNING 1: Reduced Input Sensitivity
-      // Was 0.5, now 0.1. You have to scroll 5x harder to build the same speed.
-      const force = Math.abs(e.deltaY) * 0.1;
-      velocityRef.current += force;
-    };
-
-    window.addEventListener('wheel', handleWheel, { passive: true });
-    return () => window.removeEventListener('wheel', handleWheel);
-  }, []);
-
   useAnimationFrame((time, delta) => {
-    // Friction
-    velocityRef.current *= 0.92;
-    if (velocityRef.current < 0.1) velocityRef.current = 0;
+    const currentVelocity = globalVelocity.get();
 
-    // TUNING 2: Chaos Calculation
-    // We divide velocity by a much larger number (was 40, now 150).
-    // This means it takes way more speed to trigger high chaos.
-    // TUNING 3: Hard Cap
-    // We cap the result at 0.5. This means at MAXIMUM speed,
-    // only 50% of the letters will glitch. It never goes "fully crazy".
-    const chaosLevel = Math.min(velocityRef.current / 150, 0.5);
+    // Chaos Calculation
+    // Using the same tuning as before: divide by 150, cap at 0.5
+    const chaosLevel = Math.min(currentVelocity / 200, 0.5);
 
-    // TUNING 4: Higher Activation Threshold
-    // Chaos won't start until we hit 0.1 (10% chaos), preventing tinyjitters.
+    // Activation Threshold
     if (chaosLevel > 0.1) {
-      // --- ACTIVE MODE ---
+      // --- ACTIVE MODE (Scrolling) ---
       const newChars = text.split('').map((originalChar) => {
         if (Math.random() < chaosLevel) {
           return {
@@ -81,8 +64,10 @@ export default function GlitchText({ text, className = '' }: GlitchTextProps) {
         setDisplayChars(newChars);
         timeSinceLastGlitch.current = 0;
 
+        // Snap back shortly after
         setTimeout(() => {
-          if (velocityRef.current < 0.1) {
+          // Check global velocity to ensure we haven't started scrolling
+          if (globalVelocity.get() < 0.1) {
             setDisplayChars(
               text.split('').map((c) => ({ char: c, isGlitching: false })),
             );
@@ -90,9 +75,9 @@ export default function GlitchText({ text, className = '' }: GlitchTextProps) {
         }, 100);
       }
 
-      // Snap back to clean text if we just stopped scrolling
+      // Cleanup: Snap back to clean text if we just stopped scrolling
       if (
-        velocityRef.current === 0 &&
+        currentVelocity === 0 &&
         timeSinceLastGlitch.current > 150 &&
         timeSinceLastGlitch.current < 3000
       ) {

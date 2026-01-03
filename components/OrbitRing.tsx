@@ -7,9 +7,11 @@ import {
   useAnimationFrame,
   AnimatePresence,
 } from 'motion/react';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import Image from 'next/image';
 import { TECH_ICONS } from '@/utils/constants';
+
+import { useGlobalScrollPhysics } from '@/context/ScrollPhysicsContext';
 
 const OrbitRing = ({
   radius,
@@ -25,41 +27,35 @@ const OrbitRing = ({
   icons?: typeof TECH_ICONS;
 }) => {
   const rotation = useMotionValue(0);
-  const velocityRef = useRef(5);
 
-  // 1. Ref to track if we should pause rotation
+  // 2. Get the global scroll velocity (Shared by Stars, Text, and Rings)
+  const globalVelocity = useGlobalScrollPhysics();
+
   const isHovering = useRef(false);
-
-  // 2. State for the tooltip
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
 
   const counterRotation = useTransform(rotation, (value) => -value);
 
-  useEffect(() => {
-    const handleWheel = (e: WheelEvent) => {
-      const scrollForce = Math.abs(e.deltaY) * 0.005;
-      velocityRef.current += scrollForce;
-    };
-
-    window.addEventListener('wheel', handleWheel, { passive: true });
-    return () => window.removeEventListener('wheel', handleWheel);
-  }, []);
-
   useAnimationFrame((time, delta) => {
     const deltaSeconds = delta / 1000;
 
-    // Friction Logic (Always run this so momentum settles naturally)
-    velocityRef.current *= 0.95;
-    if (velocityRef.current < 0.01) velocityRef.current = 0;
-
-    // 3. PAUSE LOGIC: If hovering, skip the rotation update
+    // PAUSE LOGIC: If hovering, strictly stop updating rotation
     if (isHovering.current) return;
 
-    // Base Speed + Boost
-    const baseSpeed = (360 / duration) * deltaSeconds;
-    const moveBy = baseSpeed + velocityRef.current;
+    // 1. Calculate Base Speed (Constant background rotation)
+    // e.g. 360 degrees / 60 seconds = 6 degrees per second
+    const baseSpeed = 360 / duration;
 
-    // Apply Direction
+    // 2. Calculate Boost from Global Velocity
+    // Global velocity is roughly 0 (idle) to ~200 (fast scroll).
+    // We multiply by 0.5 to convert "Physics Energy" into "Degrees Per Second".
+    // 200 energy * 0.5 = 100 degrees/sec extra rotation (Fast but readable).
+    const currentVelocity = globalVelocity.get();
+    const speedBoost = currentVelocity * 2;
+
+    // 3. Apply Total Rotation
+    const moveBy = (baseSpeed + speedBoost) * deltaSeconds;
+
     const currentRotation = rotation.get();
     if (reverse) {
       rotation.set(currentRotation - moveBy);
@@ -83,7 +79,7 @@ const OrbitRing = ({
       }}
     >
       <motion.div
-        className="w-full h-full relative"
+        className="w-full h-full relative will-change-transform"
         style={{ rotate: rotation }}
       >
         {icons.map((icon, index) => {
@@ -104,8 +100,8 @@ const OrbitRing = ({
                 h-[50px] -ml-5 -mt-5 bg-theme-black border 
                 border-theme-white/20 rounded-full 
                 shadow-[0_0_15px_rgba(255,255,255,0.1)] cursor-pointer 
-                pointer-events-auto z-10 hover:scale-110 
-                transition-transform duration-200"
+                pointer-events-auto z-10 hover:scale-110 hover:border-theme-orange
+                transition-all duration-200"
                 onMouseEnter={() => {
                   isHovering.current = true;
                   setActiveTooltip(icon.label);
@@ -125,12 +121,11 @@ const OrbitRing = ({
                       transition={{ duration: 0.2 }}
                       className="absolute -top-10 left-1/2 -translate-x-1/2 
                       bg-theme-black/90 border border-theme-orange/50 px-3 py-1 
-                      rounded-md whitespace-nowrap z-20"
+                      rounded-md whitespace-nowrap z-20 pointer-events-none"
                     >
                       <p className="text-[10px] font-inter tracking-wider text-theme-white">
                         {icon.alt}
                       </p>
-                      {/* Little triangle arrow pointing down */}
                       <div
                         className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 
                       bg-theme-orange/50 rotate-45 transform translate-y-[-50%]"

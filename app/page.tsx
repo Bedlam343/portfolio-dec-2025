@@ -7,17 +7,22 @@ import { motion, Variants, useTransform } from 'motion/react';
 import OrbitRing from '@/components/OrbitRing';
 import ScrollHint from '@/components/ScrollHint';
 import GlitchText from '@/components/GlitchText';
-import PulsingStar from '@/components/PulsingStar';
 import { TECH_ICONS } from '@/utils/constants';
 
-import { useScrollPhysics } from '@/hooks/useScrollPhysics';
+// Make sure this path matches the file you created in Step 1
+import { useGlobalScrollPhysics } from '@/context/ScrollPhysicsContext';
 
+// Define Motion Components for SVG Filters
 const MotionFeDisplacementMap = motion.create('feDisplacementMap');
 const MotionFeTurbulence = motion.create('feTurbulence');
 
 export default function PortfolioHome() {
   const backgroundRef = useRef(null);
-  const physicsVelocity = useScrollPhysics();
+
+  // 1. Connect to the global physics engine
+  const physicsVelocity = useGlobalScrollPhysics();
+
+  // 2. Map velocity to distortion
   const distortionScale = useTransform(physicsVelocity, [0, 150], [0, 50]);
   const noiseSeed = useTransform(physicsVelocity, (v) => v * 5);
 
@@ -39,12 +44,30 @@ export default function PortfolioHome() {
     show: { opacity: 1, transition: { duration: 0.8 } },
   };
 
+  const ringExitVariant: Variants = {
+    exit: {
+      scale: 15,
+      opacity: 0,
+      transition: { duration: 0.8, ease: 'easeIn' },
+    },
+  };
+
+  const contentExitVariant: Variants = {
+    exit: {
+      y: -50,
+      opacity: 0,
+      transition: { duration: 0.5 },
+    },
+  };
+
   return (
     <div
       ref={backgroundRef}
-      className="relative h-screen w-screen bg-theme-black overflow-hidden selection:bg-theme-orange selection:text-black"
+      // CRITICAL FIX: Removed 'bg-theme-black'.
+      // This allows the stars (which are behind this page in the Layout) to show through.
+      className="relative h-screen w-screen overflow-hidden selection:bg-theme-orange selection:text-black"
     >
-      {/* SVG Filters (Invisible) */}
+      {/* SVG Filters (Invisible Definition) */}
       <svg
         style={{
           position: 'absolute',
@@ -73,28 +96,13 @@ export default function PortfolioHome() {
         </defs>
       </svg>
 
-      {/* --- 1. GLOBAL NOISE TEXTURE (Background) --- */}
-      <div className="absolute inset-0 z-[20] opacity-[0.06] mix-blend-overlay pointer-events-none">
-        <svg className="h-full w-full">
-          <filter id="noiseFilter">
-            <feTurbulence
-              type="fractalNoise"
-              baseFrequency="0.6"
-              numOctaves="3"
-              stitchTiles="stitch"
-            />
-          </filter>
-          <rect width="100%" height="100%" filter="url(#noiseFilter)" />
-        </svg>
-      </div>
-
-      {/* --- 2. THE INTERACTIVE PULSING STARS --- */}
-      <PulsingStar side="left" colorClass="bg-theme-orange" />
-      <PulsingStar side="right" colorClass="bg-theme-orange" />
-
-      {/* LEFT SIDE RINGS */}
-      {/* Ensure this z-index is lower than main content, but interaction is allowed because main content will be pointer-events-none */}
-      <div className="absolute inset-0 z-[1] pointer-events-none">
+      {/* RINGS WRAPPER */}
+      <motion.div
+        className="absolute inset-0 z-[1] pointer-events-none"
+        variants={ringExitVariant}
+        exit="exit"
+      >
+        {/* Left Rings */}
         <OrbitRing
           radius={300}
           duration={45}
@@ -114,10 +122,8 @@ export default function PortfolioHome() {
           side="left"
           icons={TECH_ICONS.slice(9, 15)}
         />
-      </div>
 
-      {/* RIGHT SIDE RINGS */}
-      <div className="absolute inset-0 z-[1] pointer-events-none">
+        {/* Right Rings */}
         <OrbitRing
           radius={300}
           duration={45}
@@ -138,17 +144,17 @@ export default function PortfolioHome() {
           side="right"
           icons={TECH_ICONS.slice(0, 6)}
         />
-      </div>
+      </motion.div>
 
-      {/* --- 3. Main Content --- */}
+      {/* MAIN CONTENT */}
       <motion.section
-        // FIX 1: Added pointer-events-none so mouse clicks pass through the empty space to the rings
-        className="relative pt-[90px] z-10 w-full h-full flex flex-col items-center pointer-events-none"
+        className="relative z-10 w-full h-full flex flex-col items-center justify-center pointer-events-none"
         variants={containerVariants}
         initial="hidden"
         animate="show"
+        exit="exit"
       >
-        <motion.div variants={fadeInVariants}>
+        <motion.div variants={contentExitVariant}>
           <GlitchText
             text="JAGJIT"
             className="text-center select-none text-[80px] sm:text-[125px] 
@@ -165,11 +171,15 @@ export default function PortfolioHome() {
           </p>
         </motion.div>
 
+        {/* Profile Picture */}
         <div className="w-full flex justify-center mt-[25px]">
           <motion.div
-            variants={itemVariants}
+            variants={{
+              show: { scale: 1, opacity: 1 },
+              exit: { scale: 0, opacity: 0, transition: { duration: 0.4 } },
+            }}
+            // Apply the filter using the ID defined in the SVG above
             style={{ filter: 'url(#profile-glitch-filter)' }}
-            // FIX 2: Added pointer-events-auto if you want the image to be interactive
             className="w-[200px] h-[200px] sm:w-[300px] sm:h-[300px] rounded-full overflow-hidden border-4 border-theme-black shadow-2xl z-20 relative pointer-events-auto"
           >
             <motion.div
@@ -188,9 +198,9 @@ export default function PortfolioHome() {
           </motion.div>
         </div>
 
+        {/* Navigation */}
         <motion.div
           variants={itemVariants}
-          // FIX 3: Added pointer-events-auto here so the buttons work
           className="flex justify-center mt-[60px] sm:mt-[75px] pointer-events-auto"
         >
           <ul className="flex flex-col sm:flex-row space-y-6 sm:space-x-12 sm:space-y-0">
@@ -199,15 +209,8 @@ export default function PortfolioHome() {
                 key={item}
                 className="font-inter text-xl relative group p-0 text-theme-white"
               >
-                <div
-                  className="absolute top-0 left-0 h-full bg-theme-orange w-0 
-                  group-hover:w-full transition-all duration-300 -z-10"
-                />
-                <a
-                  className="cursor-pointer block relative overflow-hidden px-1 
-                  group-hover:text-theme-black transition-colors duration-300
-                  text-center sm:text-left"
-                >
+                <div className="absolute top-0 left-0 h-full bg-theme-orange w-0 group-hover:w-full transition-all duration-300 -z-10" />
+                <a className="cursor-pointer block relative overflow-hidden px-1 group-hover:text-theme-black transition-colors duration-300 text-center sm:text-left">
                   {item}
                 </a>
               </li>
